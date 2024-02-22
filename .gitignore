@@ -6,6 +6,8 @@ node_modules
 /artifacts
 /coverage
 gas-report.txt
+/typechain
+/typechain-types
 
 # TypeChain files
 /typechain

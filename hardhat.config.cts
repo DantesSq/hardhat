@@ -1,8 +1,9 @@
-require("@nomicfoundation/hardhat-toolbox");
-require('dotenv').config()
-require("@nomicfoundation/hardhat-ethers");
-require("hardhat-gas-reporter")
-require("solidity-coverage")
+import "@nomicfoundation/hardhat-toolbox"
+import 'dotenv/config'
+import "@nomicfoundation/hardhat-ethers"
+import "hardhat-gas-reporter"
+import "solidity-coverage"
+import "@typechain/hardhat"
 
 /** @type import('hardhat/config').HardhatUserConfig */
 

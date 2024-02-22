@@ -1,5 +1,5 @@
-import pkg from 'hardhat'
-const {ethers, run, network} = pkg
+import { Addressable } from "ethers"
+import {ethers, run, network} from "hardhat"
 
 async function main() {
   const SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage")
@@ -9,7 +9,7 @@ async function main() {
   await simpleStorage.waitForDeployment()
 
   if (network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY) {
-    await simpleStorage.deploymentTransaction.wait(6) // wait for 6 blocks
+    await simpleStorage.deploymentTransaction()?.wait(6) // wait for 6 blocks
     await verify(simpleStorage.target, [])
   }
 
@@ -24,12 +24,12 @@ async function main() {
   console.log(updatedValue, tx)
 }
 
-async function verify(contractAddrtess, args){
+async function verify(contractAddrtess: string | Addressable, args: any){
   console.log("Veryfying contract..")
   try {
     await run("verify:verify", {address: contractAddrtess, constructorArgsParams: args})
     
-  } catch (error) {
+  } catch (error: any) {
     if(error.message.toLowerCase().includes("already verified")) console.log("Already verified") 
     else console.log(error)
   }

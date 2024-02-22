@@ -1,11 +1,13 @@
-import pkg from "hardhat"
-const {ethers} = pkg
+import { SimpleStorage, SimpleStorage__factory } from '../typechain-types';
+import {ethers} from "hardhat"
 import {expect, assert} from "chai"
+import { BaseContract } from "ethers"
 
 describe("SimpleStorage", ()=>{
-    let simpleStorageFactory, simpleStorage
+    let simpleStorageFactory: SimpleStorage__factory
+    let simpleStorage: SimpleStorage
     beforeEach(async ()=>{
-        simpleStorageFactory = await ethers.getContractFactory("SimpleStorage")
+        simpleStorageFactory = (await ethers.getContractFactory("SimpleStorage")) as unknown as SimpleStorage__factory
         simpleStorage = await simpleStorageFactory.deploy()
     })
 
