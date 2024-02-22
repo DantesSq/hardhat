@@ -1,28 +1,38 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
-const hre = require("hardhat");
+import pkg from 'hardhat'
+const {ethers, run, network} = pkg
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage")
 
-  const lockedAmount = hre.ethers.parseEther("0.001");
+  console.log('deploying..')
+  const simpleStorage = await SimpleStorageFactory.deploy()
+  await simpleStorage.waitForDeployment()
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  if (network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY) {
+    await simpleStorage.deploymentTransaction.wait(6) // wait for 6 blocks
+    await verify(simpleStorage.target, [])
+  }
 
-  await lock.waitForDeployment();
+  const currentValue = await simpleStorage.retrieve()
+  console.log(currentValue)
 
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  // Update
+  const tx = await simpleStorage.store(1)
+  await tx.wait(1)
+  console.log(`Check your tx: sepolia.etherscan.io/tx/${tx.hash}`)
+  const updatedValue = await simpleStorage.retrieve()
+  console.log(updatedValue, tx)
+}
+
+async function verify(contractAddrtess, args){
+  console.log("Veryfying contract..")
+  try {
+    await run("verify:verify", {address: contractAddrtess, constructorArgsParams: args})
+    
+  } catch (error) {
+    if(error.message.toLowerCase().includes("already verified")) console.log("Already verified") 
+    else console.log(error)
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
